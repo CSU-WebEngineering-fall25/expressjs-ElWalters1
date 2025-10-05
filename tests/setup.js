@@ -1,7 +1,7 @@
 // Test setup file
-const { jest } = require('@jest/globals');
+const { jest: requiredJest } = require('@jest/globals');
 
-jest.setTimeout(10000);
+requiredJest.setTimeout(10000);
 
 global.console = {
   ...console,

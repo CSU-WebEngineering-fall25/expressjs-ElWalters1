@@ -24,36 +24,16 @@ router.get('/latest', async (req, res, next) => {
   }
 });
 
-// TODO: Implement GET /api/comics/:id
-router.get('/:id',
-  [
-    param('id')
-      .isInt({ min: 1 })
-      .withMessage('Comic ID must be a positive integer')
-  ],
-  validate,
-  async (req, res, next) => {
-    try {
-      // Get comic by ID using xkcdService.getById()
-      // Parse req.params.id to integer
-      // Pass any errors to next()
-      res.status(501).json({ error: 'Not implemented' });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
 // TODO: Implement GET /api/comics/random
 router.get('/random', async (req, res, next) => {
   try {
-    // Use xkcdService.getRandom() to get a random comic
-    // Handle any errors appropriately
-    res.status(501).json({ error: 'Not implemented' });
-  } catch (error) {
-    next(error);
+      const comic = await xkcdService.getRandom();
+      res.status(200).json(comic);
+    } catch (error) {
+      next(error);
   }
 });
+
 
 // TODO: Implement GET /api/comics/search
 router.get('/search',
@@ -74,15 +54,42 @@ router.get('/search',
   validate,
   async (req, res, next) => {
     try {
-      // Extract q, page, limit from req.query
-      // Set defaults: page = 1, limit = 10
-      // Use xkcdService.search(q, page, limit)
-      // Return the search results
-      res.status(501).json({ error: 'Not implemented' });
+      const { q, page, limit } = req.query;
+      const pageNum = page ? parseInt(page) : 1;
+      const limitNum = limit ? parseInt(limit, 10) : 10;
+      const results = await xkcdService.search(q, pageNum, limitNum);
+      res.status(200).json(results);  
     } catch (error) {
       next(error);
     }
   }
 );
+
+
+// TODO: Implement GET /api/comics/:id
+router.get('/:id',
+  [
+    param('id')
+      .isInt({ min: 1 })
+      .withMessage('Comic ID must be a positive integer')
+  ],
+  validate,
+  async (req, res, next) => {
+    try {
+      const comicId = parseInt(req.params.id, 10);
+      const comic = await xkcdService.getById(comicId);
+      if (!comic) {
+        return res.status(404).json({ error: 'Comic not found' });
+
+      }
+      res.status(200).json(comic);
+    } catch (error) {
+      next(error);
+  }
+});
+
+
+
+
 
 module.exports = router;

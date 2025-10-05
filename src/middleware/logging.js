@@ -18,18 +18,16 @@ const logger = winston.createLogger({
 
 // TODO: Complete the logging middleware
 module.exports = (req, res, next) => {
-  // Generate a unique request ID (use Math.random().toString(36).substr(2, 9))
-  // Set req.requestId to the generated ID
-  // Set req.startTime to current timestamp (Date.now())
+  require.requestId = Math.random().toString(36).substring(2, 9);
+  req.startTime = Date.now();
+
+  console.log( 'Incoming request:', {
+    requestId: req.requestId,
+    method: req.method,
+    url: req.url,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
   
-  // Log the incoming request with:
-  // - requestId
-  // - method
-  // - url
-  // - ip
-  // - userAgent (use req.get('User-Agent'))
-  
-  // Call next() to continue to the next middleware
-  
-  next(); // This should remain at the end
+  next();
 };
