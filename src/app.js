@@ -33,10 +33,17 @@ app.use('/api', limiter);
 // Custom middleware
 app.use(loggingMiddleware);
 
-// TODO: Add middleware to track request statistics
-// Hint: Increment totalRequests and track endpoint usage
+const statsMiddleware = (req, res, next) => {
+  stats.totalRequests += 1;
+  if (!stats.endpointStats[req.path]) {
+    stats.endpointStats[req.path] = 0;      
+  } 
+  stats.endpointStats[req.path] ++;
+  next();
+};
+app.use(statsMiddleware);
 
-// Routes
+
 app.use('/api/comics', comicsRouter);
 
 app.get('/api/health', (req, res) => {
@@ -49,9 +56,14 @@ app.get('/api/health', (req, res) => {
 
 // TODO: Implement /api/stats endpoint
 app.get('/api/stats', (req, res) => {
-  // Return stats object with totalRequests, endpointStats, and uptime
-  res.status(501).json({ error: 'Not implemented' });
+  const uptime = Math.floor((new Date() - stats.startTime) / 1000);
+  res.status(200).json({
+    totalRequests: totalRequests,
+    uptime: uptime,
+    endpointStats: endpointStats
+  });   
 });
+
 
 // 404 handler for API routes
 app.all('/api/*', (req, res) => {
